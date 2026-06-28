@@ -17,10 +17,15 @@ const {
  * é despacho polimórfico.
  */
 class CheckoutService {
-  constructor(gatewayPagamento, pedidoRepository, emailService) {
+  constructor(gatewayPagamento, pedidoRepository, emailService, options = {}) {
     this.gatewayPagamento = gatewayPagamento;
     this.pedidoRepository = pedidoRepository;
     this.emailService = emailService;
+
+    this.maxRetries = options.maxRetries ?? 3;
+    this.retryDelayMs = options.retryDelayMs ?? 500;
+    this.sleepFn = options.sleepFn ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
+    this.randomFn = options.randomFn ?? Math.random;
   }
 
   async processar(pedido) {
@@ -41,15 +46,33 @@ class CheckoutService {
    * Stubs simulando cada resposta do gateway (ver tarefas da Pessoa 3).
    */
   async _cobrar(pedido) {
-    try {
-      const resposta = await this.gatewayPagamento.cobrar(pedido.valor, pedido.cartao);
-      return resposta.status === 'APROVADO'
-        ? new PagamentoAprovado()
-        : new PagamentoRecusado();
-    } catch (error) {
-      console.error('Falha catastrófica no gateway bancário:', error.message);
-      return new FalhaInfraestrutura();
+    let tentativa = 0;
+
+    while (true) {
+      try {
+        const resposta = await this.gatewayPagamento.cobrar(pedido.valor, pedido.cartao);
+        return resposta.status === 'APROVADO'
+          ? new PagamentoAprovado()
+          : new PagamentoRecusado();
+      } catch (error) {
+        tentativa += 1;
+        const aindaTemRetry = tentativa <= this.maxRetries;
+
+        if (!aindaTemRetry) {
+          console.error('Falha catastrófica no gateway bancário:', error.message);
+          return new FalhaInfraestrutura();
+        }
+
+        const atraso = this._computeRetryDelayWithJitter(this.retryDelayMs);
+        console.warn(`Gateway falhou na tentativa ${tentativa}. Retentando em ${atraso}ms.`, error.message);
+        await this.sleepFn(atraso);
+      }
     }
+  }
+
+  _computeRetryDelayWithJitter(baseDelayMs) {
+    const jitter = Math.floor(this.randomFn() * 200);
+    return baseDelayMs + jitter;
   }
 }
 
