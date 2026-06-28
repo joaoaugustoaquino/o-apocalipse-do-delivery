@@ -1,10 +1,12 @@
 # O Apocalipse do Delivery
 
 Intrgrantes
-* Aluno 1
-* Aluno 2
-
-
+* Felipe Augusto Moreira Corrêa
+* João Augusto Aquino Campelo
+* João Paulo Gobira Lopes Costa
+* Júlia de Souza Ventura
+* Rayssa Pierre da Silva Ramiro
+  
 Como as Fases se Conectam a este Código
 
 **Fase 1**
