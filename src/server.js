@@ -40,7 +40,7 @@ app.post('/api/v1/checkout', async (req, res) => {
   const resultado = await checkoutService.processar(pedido);
 
   if (resultado && resultado.status === 'PROCESSADO') {
-    return res.status(200).json({ mensagem: 'Pedido finalizado com sucesso!', pedido: resultado });
+    return res.status(200).json({ mensagem: 'Pedido finalizado com sucesso!', pedido: resultado.pedidoSalvo });
   }
   
   return res.status(500).json({ erro: 'Não foi possível processar seu pagamento. Tente mais tarde.' });
