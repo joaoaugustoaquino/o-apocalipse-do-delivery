@@ -36,7 +36,7 @@ class PagamentoAprovado extends ResultadoPagamento {
       .enviarConfirmacao(pedido.clienteEmail, 'Pagamento Aprovado')
       .catch((err) => console.error('Falha ao enviar e-mail de confirmação:', err.message));
 
-    return { pedidoSalvo, httpStatus: 200 };
+    return { pedidoSalvo, httpStatus: 200, status: 'PROCESSADO' };
   }
 }
 
@@ -46,7 +46,7 @@ class PagamentoRecusado extends ResultadoPagamento {
     pedido.status = 'FALHOU';
     await pedidoRepository.salvar(pedido);
     // RN03 (Regra Crítica): jamais disparar e-mail de confirmação aqui.
-    return { pedidoSalvo: null, httpStatus: 500 };
+    return { pedidoSalvo: null, httpStatus: 500, status: 'FALHOU' };
   }
 }
 
@@ -55,7 +55,7 @@ class FalhaInfraestrutura extends ResultadoPagamento {
   async finalizar(pedido, { pedidoRepository }) {
     pedido.status = 'ERRO_GATEWAY';
     await pedidoRepository.salvar(pedido);
-    return { pedidoSalvo: null, httpStatus: 500 };
+    return { pedidoSalvo: null, httpStatus: 500, status: 'ERRO_GATEWAY' };
   }
 }
 
