@@ -1,37 +1,54 @@
+const {
+  PagamentoAprovado,
+  PagamentoRecusado,
+  FalhaInfraestrutura,
+} = require('./ResultadoPagamento');
+
+/**
+ * CheckoutService — versão refatorada (Fase 2).
+ *
+ * Antes (legado): processar() continha 1 if/else + 1 try/catch misturados
+ * com a lógica de persistência e e-mail na mesma função → V(G) = 3.
+ *
+ * Depois: processar() não tem nenhum nó de decisão (V(G) = 1). A
+ * complexidade não desapareceu — ela foi ISOLADA dentro de _cobrar(),
+ * que é a única "fábrica" responsável por traduzir a resposta externa
+ * (ou uma exceção) em um objeto ResultadoPagamento. A partir daí, tudo
+ * é despacho polimórfico.
+ */
 class CheckoutService {
   constructor(gatewayPagamento, pedidoRepository, emailService) {
     this.gatewayPagamento = gatewayPagamento;
     this.pedidoRepository = pedidoRepository;
-    this.emailService = emailService; // Dependência externa para e-mail
+    this.emailService = emailService;
   }
 
   async processar(pedido) {
+    const resultado = await this._cobrar(pedido);
+
+    // Nenhum if/else aqui — o próprio objeto "resultado" sabe o que fazer.
+    return resultado.finalizar(pedido, {
+      pedidoRepository: this.pedidoRepository,
+      emailService: this.emailService,
+    });
+  }
+
+  /**
+   * Único ponto de decisão remanescente do componente.
+   * V(G) desta função = 3 (idêntico ao legado: 1 decisão do if de status
+   * + 1 decisão implícita do try/catch), mas agora vive isolada em uma
+   * função pequena, de responsabilidade única, fácil de testar com
+   * Stubs simulando cada resposta do gateway (ver tarefas da Pessoa 3).
+   */
+  async _cobrar(pedido) {
     try {
-      // 1. Tenta a cobrança chamando o gateway bancário externo
       const resposta = await this.gatewayPagamento.cobrar(pedido.valor, pedido.cartao);
-      
-      if (resposta.status === 'APROVADO') {
-        pedido.status = 'PROCESSADO';
-        const pedidoSalvo = await this.pedidoRepository.salvar(pedido);
-        
-        // PROBLEMA: Disparo de e-mail síncrono acoplado ao fluxo principal
-        await this.emailService.enviarConfirmacao(pedido.clienteEmail, "Pagamento Aprovado");
-        
-        return pedidoSalvo;
-      } else {
-        // 2. Caminho infeliz: Falha de negócio (Ex: Cartão Recusado)
-        pedido.status = 'FALHOU';
-        await this.pedidoRepository.salvar(pedido);
-        return null;
-      }
+      return resposta.status === 'APROVADO'
+        ? new PagamentoAprovado()
+        : new PagamentoRecusado();
     } catch (error) {
-      // 3. Caminho infeliz: Falha de infraestrutura (Ex: Timeout da API externa)
-      console.error("Falha catastrófica no gateway bancário:", error.message);
-      pedido.status = 'ERRO_GATEWAY';
-      await this.pedidoRepository.salvar(pedido);
-      
-      // Reparem como o código atual falha de forma bruta sem tentar retries ou fallbacks
-      return null;
+      console.error('Falha catastrófica no gateway bancário:', error.message);
+      return new FalhaInfraestrutura();
     }
   }
 }
