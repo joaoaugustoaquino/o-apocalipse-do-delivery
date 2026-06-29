@@ -10,7 +10,7 @@ Na primeira execução do Stryker, o resultado global da suíte de testes ficou 
 
 Como pode ser observado na imagem abaixo, o arquivo principal do servidor (`server.js`) estava com **0.00%** de aproveitamento, com todos os seus 46 mutantes sobrevivendo:
 
-![Resultado Inicial do Stryker](docs/imagens/mutatacao-antes.png)
+![Resultado Inicial do Stryker](docs/imagens/mutates-antes.png)
 
 ### O Gargalo Encontrado
 Ao analisar o código interno mapeado pelo Stryker, identificamos o motivo dessa vulnerabilidade: os testes de integração apenas checavam se as rotas respondiam com status HTTP 200 ou 500, mas ignoravam o conteúdo retornado no corpo da requisição (`res.body`). 
