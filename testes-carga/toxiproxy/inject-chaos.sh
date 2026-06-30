@@ -1,13 +1,12 @@
 #!/bin/bash
-# Injeta caos no Toxiproxy enquanto o k6 está rodando.
-# Execute em um terceiro terminal, enquanto o k6 estiver ativo.
-
 TOXI_API="http://localhost:8474"
 
 echo "=========================================="
 echo " EXPERIMENTO 1: GATEWAY LENTO (+5000ms)"
 echo "=========================================="
-echo "Timestamp de injecao: $(date '+%H:%M:%S')"
+T1_INICIO=$(date +%s000)
+echo "Timestamp de injecao (epoch ms): $T1_INICIO"
+echo "Timestamp de injecao (legivel): $(date '+%H:%M:%S')"
 
 curl -s -X POST "$TOXI_API/proxies/gateway-pagamento/toxics" \
   -H "Content-Type: application/json" \
@@ -23,19 +22,23 @@ echo ""
 echo "Aguardando 60s para observar o impacto no k6..."
 sleep 60
 
+T1_FIM=$(date +%s000)
 echo "Removendo toxico de latencia..."
 curl -s -X DELETE "$TOXI_API/proxies/gateway-pagamento/toxics/gateway-latencia"
-echo "Timestamp de recuperacao: $(date '+%H:%M:%S')"
+echo "Timestamp de remocao (epoch ms): $T1_FIM"
+echo "Timestamp de remocao (legivel): $(date '+%H:%M:%S')"
 
 echo ""
-echo "Aguardando 30s para observar recuperacao (MTTR)..."
+echo "Aguardando 30s para observar recuperacao..."
 sleep 30
 
 echo ""
 echo "=========================================="
 echo " EXPERIMENTO 2: THUNDERING HERD"
 echo "=========================================="
-echo "Timestamp de injecao: $(date '+%H:%M:%S')"
+T2_INICIO=$(date +%s000)
+echo "Timestamp de injecao (epoch ms): $T2_INICIO"
+echo "Timestamp de injecao (legivel): $(date '+%H:%M:%S')"
 
 curl -s -X POST "$TOXI_API/proxies/cache-redis/toxics" \
   -H "Content-Type: application/json" \
@@ -55,9 +58,21 @@ echo ""
 echo "Aguardando 60s para observar o Thundering Herd..."
 sleep 60
 
+T2_FIM=$(date +%s000)
 echo "Restaurando cache..."
 curl -s -X DELETE "$TOXI_API/proxies/cache-redis/toxics/cache-down"
-echo "Timestamp de recuperacao: $(date '+%H:%M:%S')"
+echo "Timestamp de remocao (epoch ms): $T2_FIM"
+echo "Timestamp de remocao (legivel): $(date '+%H:%M:%S')"
 
 echo ""
-echo "Experimentos concluidos!"
+echo "=========================================="
+echo "  RESUMO DOS TIMESTAMPS (para calculo do MTTR)"
+echo "=========================================="
+echo "  Experimento 1 - Gateway Lento:"
+echo "    Injecao : $T1_INICIO"
+echo "    Remocao : $T1_FIM"
+echo ""
+echo "  Experimento 2 - Thundering Herd:"
+echo "    Injecao : $T2_INICIO"
+echo "    Remocao : $T2_FIM"
+echo "=========================================="

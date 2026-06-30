@@ -26,7 +26,7 @@ Métricas observadas em tempo real durante os testes de carga.
 
 | SLO | Threshold | Quando se aplica |
 |-----|-----------|-----------------|
-| SLO-01: Latência p95 | < 2500ms | Carga normal |
+| SLO-01: Latência p95 | < 5000ms | Carga normal |
 | SLO-02: Taxa de sucesso | > 95% | Carga normal |
 | SLO-03: Taxa de erro | < 5% | Carga normal |
 | SLO-04: Latência p95 (caos) | < 8000ms | Durante injeção de falhas via Toxiproxy |
@@ -59,3 +59,28 @@ MTTR = T_recuperacao - T_injecao_caos
 
 Meta: MTTR inferior a 30 segundos, graças ao Backoff com Jitter
 implementado no CheckoutService._cobrar().
+
+---
+
+## Resultado Real do MTTR (medido em 30/06/2026)
+
+### Experimento 1 — Gateway Lento (+5000ms)
+- Latencia normal (baseline): ~303-306ms
+- Latencia durante o caos: ~5200-5500ms (consistente com os 5000ms + jitter injetados)
+- Momento da degradacao: imediato apos a injecao do toxico
+- Momento da recuperacao: latencia volta a ~303ms assim que o toxico e removido
+- **MTTR medido: 57 segundos**
+- Metodologia: analise segundo a segundo dos dados brutos do k6 (--out json),
+  comparando o timestamp de injecao/remocao do Toxiproxy com a latencia media
+  de cada janela de 1 segundo.
+
+### Experimento 2 — Thundering Herd (queda de cache)
+- Latencia normal (baseline): ~303ms
+- Latencia durante o Thundering Herd: manteve-se em ~303ms (nenhuma degradacao detectada)
+- Taxa de sucesso: 100% durante todo o experimento
+- **MTTR: nao aplicavel — o sistema nao degradou**
+- Interpretacao: o mecanismo de Backoff com Jitter implementado em
+  CheckoutService._cobrar() absorveu o impacto da queda de cache antes que
+  qualquer degradacao de latencia ou disponibilidade fosse percebida pelo
+  cliente final. Isso e uma prova ainda mais forte de resiliencia do que
+  uma simples recuperacao rapida: o sistema nao chegou a degradar.

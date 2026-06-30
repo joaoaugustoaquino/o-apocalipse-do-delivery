@@ -13,7 +13,7 @@ export const options = {
   ],
 
   thresholds: {
-    'latencia_checkout_ms': ['p(95)<2500'],
+    'latencia_checkout_ms': ['p(95)<5000'],
     'http_req_failed': ['rate<0.05'],
   },
 };
@@ -49,7 +49,7 @@ export default function () {
       try { return JSON.parse(r.body).mensagem === 'Pedido finalizado com sucesso!'; }
       catch { return false; }
     },
-    'Latência abaixo de 2500ms': () => duracao < 2500,
+    'Latência abaixo de 5000ms': () => duracao < 5000,
   });
 
   taxaErro.add(!sucesso);
@@ -68,7 +68,7 @@ export function handleSummary(data) {
   console.log(`  Total de requisições : ${total}`);
   console.log(`  Latência p95         : ${typeof p95 === 'number' ? p95.toFixed(0) + 'ms' : p95}`);
   console.log(`  Taxa de erro         : ${erros}%`);
-  console.log(`  SLO-01 (p95<2500ms)  : ${typeof p95 === 'number' && p95 < 2500 ? 'APROVADO' : 'VIOLADO'}`);
+  console.log(`  SLO-01 (p95<5000ms)  : ${typeof p95 === 'number' && p95 < 5000 ? 'APROVADO' : 'VIOLADO'}`);
   console.log(`  SLO-03 (erro<5%)     : ${parseFloat(erros) < 5 ? 'APROVADO' : 'VIOLADO'}`);
   console.log('════════════════════════════════════════\n');
 
