@@ -4,5 +4,9 @@
   "type": "commonjs",
   "scripts": {
     "test": "node --test tests/CheckoutService.test.cjs"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "supertest": "^7.2.2"
   }
 }

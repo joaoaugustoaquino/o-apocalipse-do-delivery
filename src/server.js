@@ -49,9 +49,9 @@ app.post('/api/v1/checkout', async (req, res) => {
 // Endpoint auxiliar para simular o comportamento de Thundering Herd (Manada Estourada)
 // Útil para limpar o cache de sessões/cupons de desconto de forma abrupta sob carga
 app.post('/api/v1/cache/flush', (req, res) => {
-  console.log("💥 CACHE LIMPO ABRUPTAMENTE!");
+  console.log("CACHE LIMPO ABRUPTAMENTE!");
   res.json({ status: 'cache_invalidated' });
 });
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor da EntregasJá rodando na porta ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor da EntregasJá rodando na porta ${PORT}`));
