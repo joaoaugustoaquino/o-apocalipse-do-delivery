@@ -1,0 +1,61 @@
+# Documento Formal de Estimativa de Esforço e Recursos (Fase 1)
+
+Este documento apresenta a estimativa formal de horas/homem, alocação de recursos e custos simulados para o desenvolvimento do sistema, considerando o escopo da arquitetura e as funções distribuídas entre os integrantes do projeto.
+
+---
+
+## 1. Escopo de Recursos Humanos (Equipe e Papéis)
+
+O projeto conta com uma equipe de engenheiros de software, divididos de acordo com as frentes técnicas mapeadas no plano de desenvolvimento:
+
+* **João Aquino (Integrante 1 - Arquitetura e Refatoração):** Mapeamento de Fluxo, Complexidade Ciclomática e Refatoração de Padrões.
+* **Rayssa (Integrante 2 - Especificação e QA):** Escrita de cenários BDD (Gherkin) e Padrões de Criação de Dados (Data Builders).
+* **João (Integrante 3 - Backend e Core Business):** Ciclo TDD para Processamento de Pedidos, Stubs/Mocks e Lógica de Backoff.
+* **Felipe Augusto (Integrante 4 - Infraestrutura de Testes e Estimativa):** Configuração de Testes de Mutação (Stryker.js) e Engenharia de Custos.
+* **Júlia (Integrante 5 - Performance e Resiliência):** Scripts de Carga (k6/Autocannon) e Engenharia de Caos (Toxiproxy).
+
+---
+
+## 2. Estimativa de Horas por Atividade (Esforço Real Executado)
+
+Abaixo está o mapeamento do esforço real dedicado pela equipe. Cada integrante executou sua respectiva frente técnica em um período focado de **1 a 2 dias de desenvolvimento individual**, somado às reuniões globais de alinhamento e integração do sistema.
+
+| Atividade / Frente Técnica | Responsável Principal | Horas Dedicadas (Real) |
+| :--- | :--- | :---: |
+| Alinhamento Inicial, Leitura do Edital e Integração Final | Toda a Equipe | 10h (2h/cada) |
+| Mapeamento de Fluxo e Análise Ciclomática | João Aquino | 14h (aprox. 1.5 dia) |
+| Escrita de Especificações Gherkin e Builders | Rayssa | 16h (aprox. 2 dias) |
+| Implementação do Core e Resiliência (TDD) | João Paulo | 16h (aprox. 2 dias) |
+| Configuração do Stryker.js e Análise de Mutantes | Felipe Augusto | 12h (aprox. 1.5 dia) |
+| Scripts de Carga (k6) e Simulações de Latência | Júlia | 16h (aprox. 2 dias) |
+| **Total de Esforço Real** | **Equipe Global** | **84 Horas** |
+
+---
+
+## 3. Estimativa de Custos (Recursos Financeiros Baseados no Mercado)
+
+Para fins de formalização de mercado, estabeleceu-se o valor da hora técnica com base na média salarial nacional de um **Desenvolvedor Júnior** (considerando um salário de R$ 4.500,00 para uma jornada padrão de 160h mensais), resultando em uma taxa de **R$ 28,00 por hora de engenharia**.
+
+### 3.1. Custo de Pessoal (Mão de Obra)
+* **Total de Horas Reais:** 84 horas
+* **Valor/Hora (Dev Júnior):** R$ 28,00
+* **Subtotal de Mão de Obra:** **R$ 2.352,00**
+
+### 3.2. Recursos de Infraestrutura e Ferramental
+Como o projeto utiliza exclusivamente tecnologias de código aberto (*Open Source*), o custo com licenças de software corporativas é zero. O ambiente de infraestrutura simulado para testes e homologação local consome os seguintes recursos computacionais:
+
+| Recurso | Descrição / Ferramenta | Custo Estimado |
+| :--- | :--- | :--- |
+| **Ambiente de Desenvolvimento** | VS Code, Node.js, Git/GitHub | R$ 0,00 (Gratuito) |
+| **Métricas e Qualidade** | Stryker.js, Autocannon / k6 | R$ 0,00 (Open Source) |
+| **Simulação de Falhas** | Toxiproxy (Injeção de latência) | R$ 0,00 (Open Source) |
+| **Hardware Estações de Trabalho** | Depreciação de notebooks locais (5 unidades) | R$ 500,00 |
+| **Total de Infraestrutura** | | **R$ 500,00** |
+
+---
+
+## 4. Resumo Consolidado do Projeto
+
+* **Modelo de Execução:** Desenvolvimento Ágil (Sprints Curtas de 1 a 2 dias por tarefa)
+* **Esforço Total:** 84 Horas/Homem
+* **Custo Total Real (Mão de Obra + Infraestrutura):** **R$ 2.852,00**
