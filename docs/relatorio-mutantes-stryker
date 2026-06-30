@@ -1,38 +1,76 @@
 #  Relatório de Evolução: Testes de Mutação com Stryker (Fase 3)
 
+
+
 Este relatório documenta a evolução da qualidade da nossa suíte de testes na Fase 3 do projeto, detalhando como saímos de uma cobertura inicial crítica para um Mutation Score robusto de **80.61%**.
 
+
+
 ---
+
+
 
 ## 1. O Cenário Inicial (A Primeira Execução)
 
+
+
 Na primeira execução do Stryker, o resultado global da suíte de testes ficou em apenas **43.88%**. Esse score baixo ocorria porque os testes existentes não cobriam fluxos alternativos e de falha do sistema.
+
+
 
 Como pode ser observado na imagem abaixo, o arquivo principal do servidor (`server.js`) estava com **0.00%** de aproveitamento, com todos os seus 46 mutantes sobrevivendo:
 
-<img width="1902" height="277" alt="Image" src="https://github.com/user-attachments/assets/addacf25-9163-4aff-91ee-5ad0a07579bb" />
+
+
+![Resultado Inicial do Stryker](docs/imagens/mutates-antes.png)
+
+
 
 ### O Gargalo Encontrado
+
 Ao analisar o código interno mapeado pelo Stryker, identificamos o motivo dessa vulnerabilidade: os testes de integração apenas checavam se as rotas respondiam com status HTTP 200 ou 500, mas ignoravam o conteúdo retornado no corpo da requisição (`res.body`). 
+
+
 
 Isso permitia que o Stryker alterasse ou esvaziasse as condicionais de sucesso e os objetos de retorno sem que nenhum teste falhasse para capturar o erro.
 
+
+
 ---
+
+
 
 ## 2. Aprimoramento da Suíte de Testes
 
+
+
 Para reverter esse cenário e garantir a confiabilidade do pipeline, realizamos uma refatoração cirúrgica no arquivo `tests/CheckoutService.test.cjs`, adicionando novos cenários baseados nas falhas apontadas pela ferramenta:
 
+
+
 * **Asserções Estritas nas Rotas:** Substituímos as checagens genéricas por validações detalhadas propriedade por propriedade (validando e-mail, valor literal, ID gerado e mensagens de erro do payload).
+
 * **Teste de Inicialização Padrão:** Criamos um cenário focado na construção isolada do `CheckoutService` sem parâmetros para forçar a execução e cobertura do operador de coalescência nula (`??`).
+
 * **Tratamento de Exceções de Infraestrutura:** Injetamos stubs simulando falhas de rejeição de Promises no serviço de e-mail para cobrir e garantir a resiliência do bloco `catch`.
+
+
 
 ---
 
+
+
 ## 3. O Cenário Final (Resultado Alcançado)
+
+
 
 Após a inclusão dos novos testes e a execução da nova bateria de mutações, o Mutation Score global do projeto saltou para **80.61%**. O total de mutantes liquidados subiu de 40 para **72**, e a cobertura lógica do `server.js` saltou de zero para **78.26%**.
 
+
+
 O painel consolidado abaixo comprova a eficácia das novas asserções implementadas:
 
-<img width="1906" height="347" alt="Image" src="https://github.com/user-attachments/assets/a7c16e84-765c-48b0-92cb-80b3c0773276" />
+
+
+![Resultado Final Aprimorado](docs/imagens/mutante-depois.png)
+
